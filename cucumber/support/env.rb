@@ -85,7 +85,12 @@ set_endpoint
 raise "Username not found in environment (RHC_USERNAME)" unless $username
 raise "Password not found in environment (RHC_PASSWORD)" unless $password
 
-$user_register_script_format = "oo-register-user -l admin -p admin --username %s --userpass %s"
+if File.exists?("/etc/openshift/plugins.d/openshift-origin-auth-remote-user.conf")
+  $user_register_script_format = "/usr/bin/htpasswd -b /etc/openshift/htpasswd %s %s"
+else
+  $user_register_script_format = "oo-register-user -l admin -p admin --username %s --userpass %s"
+end
+
 if ENV['REGISTER_USER']
   command = $user_register_script_format % [$username,$password]
   if Object.const_defined?('Bundler')

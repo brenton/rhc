@@ -31,6 +31,7 @@ class RHC::Commands::Base
     def rest_client(opts={})
       @rest_client ||= begin
           auth = RHC::Auth::Basic.new(options)
+          auth = RHC::Auth::X509.new(options) if (options.ssl_client_cert_file && options.ssl_client_key_file)
           auth = RHC::Auth::Token.new(options, auth, token_store) if (options.use_authorization_tokens || options.token) && !(options.rhlogin && options.password)
           debug "Authenticating with #{auth.class}"
           client_from_options(:auth => auth)

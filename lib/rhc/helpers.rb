@@ -196,7 +196,6 @@ module RHC
     def ssl_options
       {
         :ssl_version => options.ssl_version,
-        :client_cert => certificate_file(options.ssl_client_cert),
         :ca_file => options.ssl_ca_file && File.expand_path(options.ssl_ca_file),
         :verify_mode => options.insecure ? OpenSSL::SSL::VERIFY_NONE : nil,
       }.delete_if{ |k,v| v.nil? }

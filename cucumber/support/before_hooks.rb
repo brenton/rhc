@@ -12,6 +12,7 @@ Before('@geared_user_required') do
   $old_username = $username
   $username = "user_with_multiple_gear_sizes@test.com"
   $namespace = nil
+  register_user()
 
   if !$cleaned_gears
     clean_applications($username)
@@ -23,6 +24,7 @@ Before('@certificates_capable_user_required') do
   $old_username = $username
   $username = "user_with_certificate_capabilities@test.com"
   $namespace = nil
+  register_user()
 
   if !$cleaned_certificates
     clean_applications($username)
@@ -43,6 +45,7 @@ Before('@cartridge_storage_user_required') do
   $old_username = $username
   $username = "user_with_extra_storage@test.com"
   $namespace = nil
+  register_user()
 
   if !$cleaned_storage
     clean_applications($username, true)

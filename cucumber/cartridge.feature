@@ -28,10 +28,10 @@ Feature: Single Cartridge Tests
     Then the list should contain the cartridge <cart> with display name
 
     Examples:
-      | cart    |
-      | php     |
-      | mongodb |
-      | cron    |
+      | cart       |
+      | php        |
+      | postgresql |
+      | cron       |
 
 
 #  Commenting this out for US2438

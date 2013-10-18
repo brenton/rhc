@@ -26,7 +26,8 @@ module RHC::Auth
     end
 
     def retry_auth?(response, client)
-      if response.status == 401
+      case response.status
+      when 401, 403
         token_rejected(response, client)
       else
         false
@@ -74,9 +75,9 @@ module RHC::Auth
         @can_get_token = client.supports_sessions? && @allows_tokens
 
         if has_token
-          warn "Your authorization token has expired. Please sign in now to continue on #{openshift_server}."
+          warn auth.expired_token_message
         elsif @can_get_token
-          info "Please sign in to start a new session to #{openshift_server}."
+          info auth.get_token_message
         end
 
         return auth.retry_auth?(response, client) unless @can_get_token

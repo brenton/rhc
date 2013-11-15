@@ -4,7 +4,7 @@
 Summary:       OpenShift client management tools
 Name:          rhc
 Version: 1.17.5
-Release:       1%{?dist}
+Release:       2%{?dist}
 Group:         Network/Daemons
 License:       ASL 2.0
 URL:           http://openshift.redhat.com
@@ -105,6 +105,13 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0644,-,-) /etc/bash_completion.d/rhc
 
 %changelog
+* Fri Nov 15 2013 Brenton Leanhardt <bleanhar@redhat.com> 1.17.5-2
+- <tests> Make tests more enterprise friendly (jdetiber@redhat.com)
+- <tests> if REGISTER_USER is set, make sure user is available before using
+  (jdetiber@redhat.com)
+- <tests> Properly register a user when using basic remote user auth
+  (jdetiber@redhat.com)
+
 * Wed Nov 13 2013 Adam Miller <admiller@redhat.com> 1.17.5-1
 - Fix bug 1018077: Regex-breaking cartridge name search (jliggitt@redhat.com)
 - Merge pull request #510 from liggitt/bug_1025241_typo

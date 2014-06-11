@@ -14,11 +14,22 @@ module RHC::Auth
       read_token
     end
 
-    def to_request(request)
+    def to_request(request, client)
       if token
         debug "Using token authentication"
         (request[:headers] ||= {})['authorization'] = "Bearer #{token}"
-      elsif auth and (!@allows_tokens or @can_get_token == false)
+      elsif client.supports_sessions? && @allows_tokens 
+        @can_get_token = true
+        info auth.get_token_message
+        debug "Creating a new authorization token"
+        if auth_token = client.new_session(:auth => auth)
+          @fetch_once = true
+          save(auth_token.token)
+          true
+        else
+          auth.retry_auth?(response, client)
+        end
+      elsif auth and !@allows_tokens
         debug "Bypassing token auth"
         auth.to_request(request)
       end
@@ -27,7 +38,7 @@ module RHC::Auth
 
     def retry_auth?(response, client)
       case response.status
-      when 401, 403
+      when 401
         token_rejected(response, client)
       else
         false
@@ -71,8 +82,6 @@ module RHC::Auth
             raise RHC::Rest::AuthorizationsNotSupported
           end
         end
-
-        @can_get_token = client.supports_sessions? && @allows_tokens
 
         if has_token
           warn auth.expired_token_message

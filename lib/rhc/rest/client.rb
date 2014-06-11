@@ -546,7 +546,7 @@ module RHC
           options[:timeout] = nil
 
           if auth = options[:auth] || self.auth
-            auth.to_request(options)
+            auth.to_request(options, self)
           end
 
           headers = (self.headers.to_a + (options.delete(:headers) || []).to_a).inject({}) do |h,(k,v)|

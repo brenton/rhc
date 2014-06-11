@@ -25,7 +25,13 @@ module RHC::Auth
     end
 
     def retry_auth?(response, client)
-      false
+      # This is really only hit in the case of token auth falling back to x509.
+      # x509 auth doesn't usually get 401s.
+      if response.status == 401
+        true
+      else
+        false
+      end
     end
 
     def can_authenticate?

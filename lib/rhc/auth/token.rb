@@ -15,19 +15,19 @@ module RHC::Auth
     end
 
     def to_request(request)
-      if token
-        debug "Using token authentication"
-        (request[:headers] ||= {})['authorization'] = "Bearer #{token}"
-      elsif auth and (!@allows_tokens or @can_get_token == false)
+      if auth and !@allows_tokens
         debug "Bypassing token auth"
         auth.to_request(request)
+      else
+        debug "Using token authentication"
+        (request[:headers] ||= {})['authorization'] = "Bearer #{token}"
+        request
       end
-      request
     end
 
     def retry_auth?(response, client)
       case response.status
-      when 401, 403
+      when 401
         token_rejected(response, client)
       else
         false

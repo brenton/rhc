@@ -38,9 +38,13 @@ class RHC::Commands::Base
 
           # Specifying a username and password on the CLI trumps token
           # authentication.
+          #
+          # TODO: we should check if options.ssl_client_cert_file &&
+          # options.ssl_client_key_file are set too
           auth = if options.rhlogin && options.password
             core_auth
           elsif (options.use_authorization_tokens || options.token)
+            options[:client_supports_sessions?] = client_from_options({}).supports_sessions?
             RHC::Auth::Token.new(options, core_auth, token_store)
           else
             core_auth

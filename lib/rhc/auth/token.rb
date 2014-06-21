@@ -7,7 +7,7 @@ module RHC::Auth
         @options = opt || Commander::Command::Options.new
         @token = options[:token]
         @no_interactive = options[:noprompt]
-        @allows_tokens = options[:use_authorization_tokens]
+        @allows_tokens = options[:use_authorization_tokens] && options[:client_supports_sessions?]
       end
       @auth = auth
       @store = store
@@ -18,7 +18,18 @@ module RHC::Auth
       if token
         debug "Using token authentication"
         (request[:headers] ||= {})['authorization'] = "Bearer #{token}"
-      elsif auth and (!@allows_tokens or @can_get_token == false)
+      elsif @allows_tokens
+        @can_get_token = true
+        info auth.get_token_message
+        debug "Creating a new authorization token"
+        if auth_token = client.new_session(:auth => auth)
+          @fetch_once = true
+          save(auth_token.token)
+          true
+        else
+          auth.retry_auth?(response, client)
+        end
+      elsif auth and !@allows_tokens
         debug "Bypassing token auth"
         auth.to_request(request)
       end
@@ -27,7 +38,7 @@ module RHC::Auth
 
     def retry_auth?(response, client)
       case response.status
-      when 401, 403
+      when 401
         token_rejected(response, client)
       else
         false
@@ -72,15 +83,13 @@ module RHC::Auth
           end
         end
 
-        @can_get_token = client.supports_sessions? && @allows_tokens
-
         if has_token
           warn auth.expired_token_message
-        elsif @can_get_token
+        elsif @allows_tokens
           info auth.get_token_message
         end
 
-        return auth.retry_auth?(response, client) unless @can_get_token
+        return auth.retry_auth?(response, client) unless @allows_tokens
 
         debug "Creating a new authorization token"
         if auth_token = client.new_session(:auth => auth)

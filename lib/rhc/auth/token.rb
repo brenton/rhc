@@ -15,12 +15,12 @@ module RHC::Auth
     end
 
     def to_request(request)
-      if token
-        debug "Using token authentication"
-        (request[:headers] ||= {})['authorization'] = "Bearer #{token}"
-      elsif auth and (!@allows_tokens or @can_get_token == false)
+      if auth and !@allows_tokens
         debug "Bypassing token auth"
         auth.to_request(request)
+      else
+        debug "Using token authentication"
+        (request[:headers] ||= {})['authorization'] = "Bearer #{token}"
       end
       request
     end
